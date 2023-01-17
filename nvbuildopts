@@ -1,0 +1,1 @@
+-c opt --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1 --java_runtime_version=remotejdk_11
