@@ -1,0 +1,43 @@
+variables:
+  DOCKER_HOST: tcp://localhost:2376
+  DOCKER_TLS_CERTDIR: ""
+
+stages:
+  - build
+  - test
+
+make:
+    tags:
+    - cudnn-frontend-runner
+    stage: build
+    script: 
+        - "docker build -t cudnn_frontend  . "
+
+make_v8.1:
+    tags:
+    - cudnn-frontend-runner
+    stage: build
+    script: 
+        - "docker build -t cudnn_frontend_v8.1  -f Dockerfile.8.1 . "
+    
+run:
+    tags:
+    - cudnn-frontend-runner
+    stage: test
+    needs: ["make"]
+    script:
+        - nvidia-smi
+        - docker container prune -f
+        - docker run --gpus all -i --name=samples cudnn_frontend /build/Samples
+        - docker rm -v samples
+
+run_v8.1:
+    tags:
+    - cudnn-frontend-runner
+    stage: test
+    needs: ["make_v8.1"]
+    script:
+        - nvidia-smi
+        - docker container prune -f
+        - docker run --gpus all -i --name=samples cudnn_frontend_v8.1 /build/Samples
+        - docker rm -v samples

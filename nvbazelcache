@@ -1,0 +1,35 @@
+#!/bin/bash
+
+BASE_URL="http://bazel-tf-cache.nvidia.com"
+SERVICE_PORT=9091
+
+OS_ID="$(cat /etc/os-release | grep "^ID=" | cut -d= -f2 | cut -d'"' -f2)"
+OS_VER="$(cat /etc/os-release | grep "VERSION_ID" | cut -d'"' -f2)"
+NVCC_VER="$(nvcc --version | sed -n 's/^.*release \([0-9.]\+\).*$/\1/p')"
+ARCH="$(uname -m)"
+GCC_VER="$(gcc --version | head -n 1 | awk 'NF>1{print $NF}' | sed 's/)//g')"
+
+if [[ -z ${TF_API} || -z ${OS_ID} || -z ${OS_VER} || -z ${NVCC_VER} || -z ${ARCH} || -z ${GCC_VER} ]]; then
+    echo ""
+    echo "1: $TF_API" 1>&2;
+    echo "2: $OS_ID" 1>&2;
+    echo "3: $OS_VER" 1>&2;
+    echo "4: $NVCC_VER" 1>&2;
+    echo "5: $ARCH" 1>&2;
+    echo "6: $GCC_VER" 1>&2;
+    exit 0
+fi
+
+CACHE_KEY="tf${TF_API}-${OS_ID}${OS_VER}-${ARCH}-cu${NVCC_VER}-gcc${GCC_VER}"
+
+CACHE_URL="${BASE_URL}:${SERVICE_PORT}/${CACHE_KEY}"
+
+TEST_ADDR="${CACHE_URL}/ac/0000000000000000000000000000000000000000000000000000000000000000"
+
+RESPONSE="$(curl --silent --max-time 10 --connect-timeout 10 ${TEST_ADDR})"
+if [[ "Not found" != "${RESPONSE}" ]]; then
+  echo ""
+  exit 0
+fi
+
+echo "--experimental_guard_against_concurrent_changes --remote_cache=$CACHE_URL"

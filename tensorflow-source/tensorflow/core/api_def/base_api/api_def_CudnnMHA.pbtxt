@@ -1,0 +1,27 @@
+op {
+  graph_op_name: "CudnnMHA"
+  summary: "A Multi-head-attention(MHA) backed by cuDNN."
+  description: <<END
+Computes the MHA from the input and initial states, with respect to the params
+buffer.
+
+num_heads: Number of MHA heads
+key: Size of each attention head for query and key.
+output_dim: Size of output.
+value_dim: Size of each attention head for value.
+dropout: Dropout probability.
+seed: The 1st part of a seed to initialize dropout.
+use_bias: Whether the dense layers use bias vectors/matrices.
+is_training: Indicates whether this operation is used for inference or
+  training.
+residual_link: Whether the forward pass uses residual link.   
+input_q: A 3-D tensor with the shape of [batch_size, seq_len_qo, embed_size_q].
+input_k: A 3-D tensor with the shape of [batch_size, seq_len_kv, embed_size_k].
+input_v: A 3-D tensor with the shape of [batch_size, seq_len_kv, embed_size_v].
+params: A 1-D tensor that contains the weights and biases in an opaque layout.
+output: A 3-D tensor with the shape of [batch_size, seq_length_qo, output_dim].
+reserve_space: An opaque tensor that can be used in backprop calculation. It
+  is only produced if is_training is false.
+host_reserved: The same host_reserved produced in the forward operation.
+END
+}

@@ -1,0 +1,27 @@
+op {
+  graph_op_name: "CudnnMHABackprop"
+  summary: "Backprop step of CudnnMHA."
+  description: <<END
+Compute the backprop of both data and weights in a MHA.
+
+dropout: Dropout probability. When set to 0., dropout is disabled.
+seed: The 1st part of a seed to initialize dropout.
+use_bias: Whether the dense layers use bias vectors/matrices.
+input_q: A 3-D tensor with the shape of [batch_size, seq_len_qo, embed_size_q].
+input_k: A 3-D tensor with the shape of [batch_size, seq_len_kv, embed_size_k].
+input_v: A 3-D tensor with the shape of [batch_size, seq_len_kv, embed_size_v].
+params: A 1-D tensor that contains the weights and biases in an opaque layout.
+output: A 3-D tensor with the shape of [batch_size, seq_length_qo, output_dim].
+output_backprop: A 3-D tensor with the same shape as output in the forward pass.
+reserve_space: The same reserve_space produced in for forward operation.
+host_reserved: The same host_reserved produced in the forward operation.
+input_q_backprop: The backprop to input_q in the forward pass. Has the same
+    shape as input.
+input_k_backprop: The backprop to input_k in the forward pass. Has the same
+    shape as input.
+input_v_backprop: The backprop to input_v in the forward pass. Has the same
+    shape as input.
+params_backprop: The backprop to the params buffer in the forward pass. Has the
+    same shape as params.
+END
+}
