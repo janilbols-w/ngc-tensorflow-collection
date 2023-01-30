@@ -1,0 +1,65 @@
+variables:
+  DOCKER_HOST: tcp://localhost:2376
+  DOCKER_TLS_CERTDIR: ""
+
+stages:
+  - query_machines
+  - build
+  - test
+
+ping:ampere:
+    tags:
+    - cudnn-frontend-ga10x-runner
+    stage: query_machines
+    script:
+        - nvidia-smi
+
+ping:turing:
+    tags:
+    - cudnn-frontend-tu10x-runner
+    stage: query_machines
+    script:
+        - nvidia-smi
+
+.make:
+    stage: build
+    script: 
+        - "docker build -t cudnn_frontend  . "
+
+.make_v8.1:
+    stage: build
+    script: 
+        - "docker build -t cudnn_frontend_v8.1  -f Dockerfile.8.1 . "
+    
+.make_v8.2:
+    tags:
+    - cudnn-frontend-runner
+    stage: build
+    script: 
+        - "docker build -t cudnn_frontend_v8.2  -f Dockerfile.8.2 . "
+
+.run:
+    stage: test
+    script:
+        - nvidia-smi
+        - docker container prune -f
+        - docker run --gpus all -i --name=samples cudnn_frontend /build/Samples
+        - docker rm -v samples
+
+.run_v8.1:
+    stage: test
+    script:
+        - nvidia-smi
+        - docker container prune -f
+        - docker run --gpus all -i --name=samples cudnn_frontend_v8.1 /build/Samples
+        - docker rm -v samples
+
+.run_v8.2:
+    stage: test
+    script:
+        - nvidia-smi
+        - docker container prune -f
+        - docker run --gpus all -i --name=samples cudnn_frontend_v8.2 /build/Samples
+        - docker rm -v samples
+
+include: '.gitlab-ci-machines.yml'
