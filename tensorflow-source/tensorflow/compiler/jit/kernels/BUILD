@@ -1,0 +1,102 @@
+load("//tensorflow/core/platform:rules_cc.bzl", "cc_library")
+load("//tensorflow:tensorflow.bzl", "tf_cc_test")
+
+package(
+    default_visibility = [
+        "//tensorflow/compiler/tf2xla:internal",
+        "//tensorflow/core/tpu:__subpackages__",
+    ],
+    licenses = ["notice"],
+)
+
+XLA_OPS_DEPS = [
+    ":async_io_rendezvous",
+    "@com_google_absl//absl/container:flat_hash_map",
+    "@com_google_absl//absl/memory",
+    "@com_google_absl//absl/synchronization",
+    "//tensorflow/compiler/jit:common",
+    "//tensorflow/compiler/jit:compilation_passes",
+    "//tensorflow/compiler/jit:flags",
+    "//tensorflow/compiler/jit:xla_activity_listener",
+    "//tensorflow/compiler/jit:xla_activity_proto_cc",
+    "//tensorflow/compiler/jit:xla_compilation_cache",
+    "//tensorflow/compiler/jit:xla_device_no_jit_rewrite_registration",
+    "//tensorflow/compiler/jit:xla_cluster_util",
+    "//tensorflow/compiler/jit:xla_launch_util",
+    "//tensorflow/compiler/tf2xla:common",
+    "//tensorflow/compiler/tf2xla:tf2xla_util",
+    "//tensorflow/compiler/tf2xla:xla_compiler",
+    "//tensorflow/compiler/tf2xla:xla_helpers",
+    "//tensorflow/compiler/tf2xla:xla_op_registry",
+    "//tensorflow/compiler/xla:executable_run_options",
+    "//tensorflow/compiler/xla:status_macros",
+    "//tensorflow/compiler/xla:statusor",
+    "//tensorflow/compiler/xla/client:client_library",
+    "//tensorflow/compiler/xla/client:local_client",
+    "//tensorflow/compiler/xla/service:compiler",
+    "//tensorflow/core:core_cpu_internal",
+    "//tensorflow/core:framework",
+    "//tensorflow/core:lib",
+    "//tensorflow/core:state_ops_op_lib",
+    "//tensorflow/core/platform:stream_executor_no_cuda",
+    "//tensorflow/core/profiler/lib:traceme",
+    "//tensorflow/stream_executor:tf_allocator_adapter",
+    "@com_google_absl//absl/types:optional",
+]
+
+# Linked by tensorflow core, without registration of jit compilation passes.
+cc_library(
+    name = "xla_ops_no_jit_rewrite_registration",
+    srcs = ["xla_ops.cc"],
+    hdrs = ["xla_ops.h"],
+    deps = XLA_OPS_DEPS + ["//tensorflow/core/platform:refcount"],
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "xla_ops",
+    srcs = ["async_io_ops.cc"],
+    hdrs = [
+        "async_io_ops.h",
+        "xla_ops.h",
+    ],
+    deps = XLA_OPS_DEPS + [
+        ":xla_ops_no_jit_rewrite_registration",
+        "//tensorflow/compiler/jit:jit_compilation_passes",
+    ],
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "async_io_rendezvous",
+    srcs = [
+        "async_io_rendezvous.cc",
+    ],
+    hdrs = [
+        "async_io_rendezvous.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//tensorflow/compiler/xla:literal",
+        "//tensorflow/compiler/xla:shape_util",
+        "//tensorflow/compiler/xla:statusor",
+        "//tensorflow/compiler/xla:xla_data_proto_cc",
+        "//tensorflow/core:framework",
+        "//tensorflow/core:lib",
+        "//tensorflow/stream_executor:device_memory",
+    ],
+)
+
+tf_cc_test(
+    name = "async_io_ops_test",
+    srcs = [
+        "async_io_ops_test.cc",
+    ],
+    deps = [
+        ":xla_ops",
+        "//tensorflow/core:framework",
+        "//tensorflow/core:test",
+        "//tensorflow/core:testlib",
+        "//tensorflow/core:test_main",
+    ],
+)
