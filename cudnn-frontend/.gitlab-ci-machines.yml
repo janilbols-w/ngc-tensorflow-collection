@@ -1,0 +1,83 @@
+make:turing:
+  extends: .make
+  tags:
+    - cudnn-frontend-tu10x-runner
+  needs: ["ping:turing"]
+
+run:turing:
+  extends: .run
+  tags:
+    - cudnn-frontend-tu10x-runner
+  needs: ["make:turing"]
+
+make:ampere:
+  extends: .make
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["ping:ampere"]
+
+run:ampere:
+  extends: .run
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["make:ampere"]
+
+make:ampere:clang:
+  extends: .make.clang
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["ping:ampere"]
+
+run:ampere:clang:
+  extends: .run.clang
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["make:ampere:clang"]
+
+make_v8.1:turing:
+  extends: .make_v8.1
+  tags:
+    - cudnn-frontend-tu10x-runner
+  needs: ["ping:turing"]
+
+run_v8.1:turing:
+  extends: .run_v8.1
+  tags:
+    - cudnn-frontend-tu10x-runner
+  needs: ["make_v8.1:turing"]
+
+make_v8.1:ampere:
+  extends: .make_v8.1
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["ping:ampere"]
+
+run_v8.1:ampere:
+  extends: .run_v8.1
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["make_v8.1:ampere"]
+
+make_v8.2:turing:
+  extends: .make_v8.2
+  tags:
+    - cudnn-frontend-tu10x-runner
+  needs: ["ping:turing"]
+
+run_v8.2:turing:
+  extends: .run_v8.2
+  tags:
+    - cudnn-frontend-tu10x-runner
+  needs: ["make_v8.2:turing"]
+
+make_v8.2:ampere:
+  extends: .make_v8.2
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["ping:ampere"]
+
+run_v8.2:ampere:
+  extends: .run_v8.2
+  tags:
+    - cudnn-frontend-ga10x-runner
+  needs: ["make_v8.2:ampere"]
