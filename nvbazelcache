@@ -1,0 +1,29 @@
+#!/bin/bash
+
+BASE_URL="http://bazel-tf-cache.nvidia.com"
+OS_VER="$(cat /etc/os-release | grep "VERSION_ID" | grep -o "[0-9][0-9][.][0-9][0-9]")"
+NVCC_VER="$(nvcc --version | sed -n 's/^.*release \([0-9.]\+\).*$/\1/p')"
+
+if [[ "$OS_VER" == "18.04" && "$NVCC_VER" == "11.1" ]]; then
+  PORT=9091
+elif [[ "$OS_VER" == "18.04" && "$NVCC_VER" == "11.2" ]]; then
+  PORT=9092
+elif [[ "$OS_VER" == "20.04" && "$NVCC_VER" == "11.3" ]]; then
+  PORT=9093
+elif [[ "$OS_VER" == "20.04" && "$NVCC_VER" == "11.2" ]]; then
+  PORT=9094
+else
+  echo ""
+  exit 0
+fi
+
+CACHE_URL="$BASE_URL:$PORT"
+
+TEST_ADDR="$CACHE_URL/cas/0000000000000000000000000000000000000000000000000000000000000000"
+RESPONSE="$(curl --silent --max-time 10 --connect-timeout 10 ${TEST_ADDR})"
+if [[ "Not found" != "${RESPONSE}" ]]; then
+  echo ""
+  exit 0
+fi
+
+echo "--experimental_guard_against_concurrent_changes --remote_cache=$CACHE_URL"
