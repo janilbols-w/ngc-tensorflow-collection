@@ -1,0 +1,5 @@
+sphinx
+sphinxcontrib-napoleon
+alabaster
+nbsphinx
+pyyaml
